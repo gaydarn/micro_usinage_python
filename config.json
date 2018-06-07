@@ -1,0 +1,18 @@
+{
+    "ANGLE_CHANGE_DIAM": -0.75,
+    "DIAM_FRAISE": 3,
+    "DIAM_PIECE": 15,
+    "FZ": 0.07,
+    "LARG_PASSE": -0.05,
+    "NB_DECIMALES": 4,
+    "NB_DENTS": 3,
+    "NB_TOURS_RESERVE": 2,
+    "PROF_PASSE": 2,
+    "R_MIN": 0.5,
+    "SURPLUS_PREM_PASSE": -0.00,
+    "TEMPS_MESURE": 4,
+    "VC_MAX": 551,
+    "VC_MIN": 100,
+    "VC_MOY": 300,
+    "VC_STEP": 50
+}
