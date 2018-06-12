@@ -32,12 +32,12 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     file = open(progname_main, "w")
     file.writelines(";**********************\n")
     file.writelines(";PROGRAMME PRINCIPAL\n")
-    file.writelines(";              **********************\n\n")
+    file.writelines(";**********************\n\n")
     # Début du programme (statique)
     file.writelines("T1 \n")
     #file.writelines("T1 M6\n") pour changement de broche
     file.writelines("G53 G01 B0 C0 F100\n")
-    file.writelines("G55 G90\n")
+    file.writelines("G55\n")
     file.writelines("L {}\n".format(path_leaf(progname_surface_milling)))
     file.writelines("L {}\n".format(path_leaf(progname_spirale_measurement)))
     file.writelines("M05\n")
@@ -57,8 +57,7 @@ def create_prog_surface_milling(config, parameters, filename):
     file = open(filename, "w")
     write_headers(config, file, parameters, "SURFACAGE")
     # Début du programme (statique)
-    #file.writelines("T1 M6\n")
-    #file.writelines("G55 G90\n")
+    file.writelines("G90\n")
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
     file.writelines("M03 S{}\n".format(config["SURFACE_N"]))
@@ -82,10 +81,7 @@ def create_prog_surface_milling(config, parameters, filename):
     file.writelines("G1 Z20\n")
     file.writelines("G0 X0 Y15\n")
     file.writelines("# HSC OFF\n")
-    #file.writelines("M05\n")
     file.writelines("M17\n")
-    # file.writelines("M6 T0\n")
-    #file.writelines("M30\n")
     file.close()
     ax = plt.subplot(111)
     plt.title("Surface milling")
@@ -113,7 +109,7 @@ def create_prog_spirale_measurements(config, parameters, filename):
     y_list = []
     y_list_tmp = []
     flag_measurement_complete = False
-    vf, ae, ap, n, dist = maj_param_usinage(parameters, index_param)
+    vf, ae, ap, n, dist = maj_param_usinage(parameters[index_param])
     # Correction de la première distance pour ajouter les tours de réserve
     target_dist = dist + config["NB_TOURS_RESERVE"] * math.pi * config["DIAM_PIECE"]
     # Création du fichier et écriture des entètes
@@ -121,14 +117,15 @@ def create_prog_spirale_measurements(config, parameters, filename):
     write_headers(config, file, parameters, "SPIRALE DE MESURE")
     # Début du programme (statique)
     file.writelines("T1 \n")
-    #    file.writelines("T1 M6\n") pour changement de broche
-    file.writelines("G55 G90\n")
+    #file.writelines("T1 M6\n") pour changement de broche
+    file.writelines("G90\n")
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
     file.writelines("M03 S{}\n".format(n))
     file.writelines("G0 Z10\n")
     file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
     file.writelines("G1 Z{} F1000\n".format(ap))
+    file.writelines("\n;OP: {}:\n".format(str(parameters[index_param])))
     file.writelines("N{}:\n".format(index_param + 1))
 
     while r > (config["DIAM_FRAISE"] / 2) - 0.05:
@@ -163,29 +160,33 @@ def create_prog_spirale_measurements(config, parameters, filename):
                 # Contrôle si la mesure est terminée
                 if index_param >= len(parameters):
                     # TODO configure vitesse de base
+                    file.writelines("N{}:\n".format(((index_param + 1) * 2) + 1))
+                    file.writelines(";End of measurement, now we do a surface milling to prepare for the next measure!\n\n")
+                    vf = config["SURFACE_VF"]
+                    file.writelines("M03 S{}\n".format(config["SURFACE_N"]))
                     flag_measurement_complete = True
                 else:
-                    vf, ae, ap, n, dist = maj_param_usinage(parameters, index_param)
+                    vf, ae, ap, n, dist = maj_param_usinage(parameters[index_param])
                     #vf = parameters[index_param]["Vf"]
                     #ae = parameters[index_param]["ae"]
                     target_dist += dist
-                    file.writelines("N{}:\n".format(index_param + 1))
+                    file.writelines("N{}:\n".format((index_param + 1)*2))
+                    file.writelines("\n;OP: {}:\n".format(str(parameters[index_param])))
+                    file.writelines("N{}:\n".format(((index_param + 1) * 2)+1))
                     file.writelines("M03 S{}\n".format(n))
     msg = "Error!"
-    dist = round(dist, 2)
+    dist_tot = round(dist_tot, 2)
     if flag_measurement_complete:
-        msg = "Measurement have been programmed without issue, with a total milling distance of {}".format(dist)
+        msg = "Measurement have been programmed without issue, with a total milling distance of {}".format(dist_tot)
     else:
-        msg = "The maximum milling distance of {} is not enough to make all the measurement!".format(dist)
-    file.writelines(";" + str(msg))
+        msg = "The maximum milling distance of {} is not enough to make all the measurement!".format(dist_tot)
+    file.writelines("\n;{}\n\n".format(str(msg)))
     print(msg)
     
     file.writelines("G1 Z20\n")
     file.writelines("G0 X0 Y15\n")
     file.writelines("# HSC OFF\n")
-    #file.writelines("M05\n")
     file.writelines("M17\n")
-    #file.writelines("M30\n")
     file.close()
 
     ax = plt.subplot(111)
@@ -198,12 +199,12 @@ def create_prog_spirale_measurements(config, parameters, filename):
     plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
 
-def maj_param_usinage(parameters, index):
-    vf = parameters[index]["Vf"]
-    ae = parameters[index]["ae"]
-    ap = parameters[index]["ap"]
-    n = parameters[index]["n"]
-    dist = math.ceil(parameters[index]["dist"])
+def maj_param_usinage(parameter):
+    vf = parameter["Vf"]
+    ae = parameter["ae"]
+    ap = parameter["ap"]
+    n = parameter["n"]
+    dist = math.ceil(parameter["dist"])
 
     return vf, ae, ap, n, dist
 
