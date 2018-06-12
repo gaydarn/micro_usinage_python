@@ -170,9 +170,9 @@ def create_prog_spirale_measurements(config, parameters, filename):
                     #vf = parameters[index_param]["Vf"]
                     #ae = parameters[index_param]["ae"]
                     target_dist += dist
-                    file.writelines("N{}:\n".format((index_param + 1)*2))
+                    file.writelines("N{}:\n".format((index_param)*2))
                     file.writelines("\n;OP: {}:\n".format(str(parameters[index_param])))
-                    file.writelines("N{}:\n".format(((index_param + 1) * 2)+1))
+                    file.writelines("N{}:\n".format(((index_param) * 2)+1))
                     file.writelines("M03 S{}\n".format(n))
     msg = "Error!"
     dist_tot = round(dist_tot, 2)
