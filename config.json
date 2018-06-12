@@ -1,18 +1,24 @@
 {
-    "ANGLE_CHANGE_DIAM": -0.75,
+    "ANGLE_CHANGE_DIAM": -1,
     "DIAM_FRAISE": 3,
     "DIAM_PIECE": 15,
-    "FZ": 0.07,
-    "LARG_PASSE": -0.05,
-    "NB_DECIMALES": 4,
     "NB_DENTS": 3,
+    "NB_DECIMALES": 4,
     "NB_TOURS_RESERVE": 2,
-    "PROF_PASSE": 2,
     "R_MIN": 0.5,
-    "SURPLUS_PREM_PASSE": -0.00,
-    "TEMPS_MESURE": 4,
-    "VC_MAX": 551,
-    "VC_MIN": 100,
-    "VC_MOY": 300,
-    "VC_STEP": 50
+
+    "SURPLUS_PREM_PASSE": 0.00,
+    "SURFACE_LARG_PASSE": 0.05,
+    "SURFACE_PROF_PASSE": 5,
+    "SURFACE_N" : 35893,
+    "SURFACE_VF" :8189,
+
+    "TEMPS_MESURE": 2.7,
+    "MODE":"VC",
+    "N" : 45000,
+    "H" : 0.02,
+    "AP" : 5,
+    "VC" :[550, 500, 450, 400, 350, 300, 250, 200, 150, 100],
+    "FZ" :[0.1, 0.09, 0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01],
+    "AE" :[0.017, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
 }

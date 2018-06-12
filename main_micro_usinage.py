@@ -34,14 +34,15 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     file.writelines(";PROGRAMME PRINCIPAL\n")
     file.writelines(";              **********************\n\n")
     # Début du programme (statique)
-    file.writelines("T1 M6\n")
-    file.writelines("G53 G01 Z+24 F1000\n")
+    file.writelines("T1 \n")
+    #file.writelines("T1 M6\n") pour changement de broche
+    file.writelines("G53 G01 B0 C0 F100\n")
     file.writelines("G55 G90\n")
-
     file.writelines("L {}\n".format(path_leaf(progname_surface_milling)))
     file.writelines("L {}\n".format(path_leaf(progname_spirale_measurement)))
     file.writelines("M05\n")
-    file.writelines("T0 M6\n")
+    file.writelines("T0\n")
+    # file.writelines("T0 M6\n")  pour changement de broche
     file.writelines("M30\n")
 
 def create_prog_surface_milling(config, parameters, filename):
@@ -49,7 +50,7 @@ def create_prog_surface_milling(config, parameters, filename):
     # Condition initiales
     r = config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"] / 2 + config["SURPLUS_PREM_PASSE"]
     theta = 0
-    vf = parameters[0]["Vf"]
+    vf = config["SURFACE_VF"]
     x_list = []
     y_list = []
     # Création du fichier et écriture des entètes
@@ -60,9 +61,10 @@ def create_prog_surface_milling(config, parameters, filename):
     #file.writelines("G55 G90\n")
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
-    file.writelines("M03 S{}\n".format(parameters[0]["n"]))
-    file.writelines("G0 X{} Y0 Z10\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
-    file.writelines("G1 Z{} F1000\n".format(config["PROF_PASSE"]))
+    file.writelines("M03 S{}\n".format(config["SURFACE_N"]))
+    file.writelines("G0 Z10\n")
+    file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
+    file.writelines("G1 Z{} F1000\n".format(config["SURFACE_PROF_PASSE"]))
 
     while r > (config["DIAM_FRAISE"] / 2) - 0.05:
 
@@ -72,12 +74,13 @@ def create_prog_surface_milling(config, parameters, filename):
         y_list.append(y)
         # Calcul des prochaines coordonées polaires
         theta += config["ANGLE_CHANGE_DIAM"]
-        r += config["LARG_PASSE"] / (360 / math.fabs(config["ANGLE_CHANGE_DIAM"]))
+        r -= config["SURFACE_LARG_PASSE"] / (360 / math.fabs(config["ANGLE_CHANGE_DIAM"]))
 
         # Log pour la génération du programme
-        file.writelines("G1 X{} Y{} Z{} F{}\n".format(x, y, config["PROF_PASSE"], vf))
+        file.writelines("G1 X{} Y{} Z{} F{}\n".format(x, y, config["SURFACE_PROF_PASSE"], vf))
 
-    file.writelines("G1 Z10\n")
+    file.writelines("G1 Z20\n")
+    file.writelines("G0 X0 Y15\n")
     file.writelines("# HSC OFF\n")
     #file.writelines("M05\n")
     file.writelines("M17\n")
@@ -92,8 +95,10 @@ def create_prog_surface_milling(config, parameters, filename):
     plt.ylim(-max_dist, max_dist)
     plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
+# Fin du programme de surfaçage
 
 
+# Début du programme mesure
 def create_prog_spirale_measurements(config, parameters, filename):
 
     # Condition initiales
@@ -101,43 +106,47 @@ def create_prog_spirale_measurements(config, parameters, filename):
     r_old = r
     theta = 0
     theta_old = theta
-    dist = 0
+    dist_tot = 0
     index_param = 0
-    target_dist = parameters[index_param]["dist"] + config["NB_TOURS_RESERVE"] * math.pi * config["DIAM_PIECE"]
     x_list = []
     x_list_tmp = []
     y_list = []
     y_list_tmp = []
     flag_measurement_complete = False
-    vf = parameters[index_param]["Vf"]
+    vf, ae, ap, n, dist = maj_param_usinage(parameters, index_param)
+    # Correction de la première distance pour ajouter les tours de réserve
+    target_dist = dist + config["NB_TOURS_RESERVE"] * math.pi * config["DIAM_PIECE"]
     # Création du fichier et écriture des entètes
     file = open(filename, "w")
     write_headers(config, file, parameters, "SPIRALE DE MESURE")
     # Début du programme (statique)
-    file.writelines("T1 M6\n")
+    file.writelines("T1 \n")
+    #    file.writelines("T1 M6\n") pour changement de broche
     file.writelines("G55 G90\n")
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
-    file.writelines("M03 S{}\n".format(parameters[index_param]["n"]))
-    file.writelines("G0 X{} Y0 Z10\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
-    file.writelines("G1 Z{} F1000\n".format(config["PROF_PASSE"]))
+    file.writelines("M03 S{}\n".format(n))
+    file.writelines("G0 Z10\n")
+    file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
+    file.writelines("G1 Z{} F1000\n".format(ap))
     file.writelines("N{}:\n".format(index_param + 1))
+
     while r > (config["DIAM_FRAISE"] / 2) - 0.05:
 
         # Calcul de coordonées cartésiennes
         x, y = pol2cart(r, theta, config["NB_DECIMALES"])
 
         # Calcul de la distance parcourue
-        dist += r_old * math.radians(math.fabs(theta - theta_old))
+        dist_tot += r_old * math.radians(math.fabs(theta - theta_old))
         # Sauvegarde des valeurs pour les calculs à la boucle suivante
         r_old = r
         theta_old = theta
         # Calcul des prochaines coordonées polaires
         theta += config["ANGLE_CHANGE_DIAM"]
-        r += config["LARG_PASSE"] / (360 / math.fabs(config["ANGLE_CHANGE_DIAM"]))
+        r -= ae / (360 / math.fabs(config["ANGLE_CHANGE_DIAM"]))
 
         # Log pour la génération du programme et l'affichage
-        file.writelines("G1 X{} Y{} Z{} F{}\n".format(x, y, config["PROF_PASSE"], vf))
+        file.writelines("G1 X{} Y{} Z{} F{}\n".format(x, y, ap, vf))
 
         if not flag_measurement_complete:
             # Log pour l'affichage
@@ -145,7 +154,7 @@ def create_prog_spirale_measurements(config, parameters, filename):
             y_list_tmp.append(y)
 
             # Passage à la vitesse suivante si la distance cible est atteinte
-            if dist >= target_dist and not index_param >= len(parameters):
+            if dist_tot >= target_dist and not index_param >= len(parameters):
                 x_list.append(x_list_tmp.copy())
                 x_list_tmp.clear()
                 y_list.append(y_list_tmp.copy())
@@ -156,10 +165,12 @@ def create_prog_spirale_measurements(config, parameters, filename):
                     # TODO configure vitesse de base
                     flag_measurement_complete = True
                 else:
-                    vf = parameters[index_param]["Vf"]
-                    target_dist += math.ceil(parameters[index_param]["dist"])
+                    vf, ae, ap, n, dist = maj_param_usinage(parameters, index_param)
+                    #vf = parameters[index_param]["Vf"]
+                    #ae = parameters[index_param]["ae"]
+                    target_dist += dist
                     file.writelines("N{}:\n".format(index_param + 1))
-                    file.writelines("M03 S{}\n".format(math.floor(parameters[index_param]["n"])))
+                    file.writelines("M03 S{}\n".format(n))
     msg = "Error!"
     dist = round(dist, 2)
     if flag_measurement_complete:
@@ -168,12 +179,15 @@ def create_prog_spirale_measurements(config, parameters, filename):
         msg = "The maximum milling distance of {} is not enough to make all the measurement!".format(dist)
     file.writelines(";" + str(msg))
     print(msg)
-    file.writelines("G1 Z10\n")
+    
+    file.writelines("G1 Z20\n")
+    file.writelines("G0 X0 Y15\n")
     file.writelines("# HSC OFF\n")
     #file.writelines("M05\n")
     file.writelines("M17\n")
     #file.writelines("M30\n")
     file.close()
+
     ax = plt.subplot(111)
     plt.title(msg)
     for ix, item in enumerate(x_list):
@@ -184,6 +198,15 @@ def create_prog_spirale_measurements(config, parameters, filename):
     plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
 
+def maj_param_usinage(parameters, index):
+    vf = parameters[index]["Vf"]
+    ae = parameters[index]["ae"]
+    ap = parameters[index]["ap"]
+    n = parameters[index]["n"]
+    dist = math.ceil(parameters[index]["dist"])
+
+    return vf, ae, ap, n, dist
+
 
 def load_config(filename):
     infile = open('config.json')
@@ -191,22 +214,80 @@ def load_config(filename):
     infile.close()
     return config
 
+    # Choix d'un des trois paramètres
 def compute_parameters(config):
+   if "VC" in config["MODE"]:
+       return compute_parameters_VC(config)
+   elif "AE" in config["MODE"]:
+       return compute_parameters_AE(config)
+   elif "FZ" in config["MODE"]:
+       return compute_parameters_FZ(config)
+
+
+    # Paramètre de Vc
+def compute_parameters_VC(config):
     parameters = []
 
-    # for vc in np.arange(config["VC_MOY"], config["VC_MAX"] + 1, config["VC_STEP"]):
-    #     n = math.floor(1000 * vc / (config["DIAM_FRAISE"] * math.pi))
-    #     vf = math.floor(config["NB_DENTS"] * config["FZ"] * n)
-    #     dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
-    #     parameters.append({"Vc": vc, "n": n, "Vf": vf, "dist": dist})
-
-    tab_range = np.arange(config["VC_MIN"], config["VC_MAX"], config["VC_STEP"])
-    for vc in reversed(tab_range):
+    for vc in config["VC"]:
+        ae = config["AE"][5]
+        fz = config["FZ"][3]
         n = math.floor(1000 * vc / (config["DIAM_FRAISE"] * math.pi))
-        vf = math.floor(config["NB_DENTS"] * config["FZ"] * n)
+        vf = math.floor(config["NB_DENTS"] * fz * n)
         dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
-        parameters.append({"Vc": vc, "n": n, "Vf": vf, "dist": dist})
+        ap = config["AP"]
+
+        parameters.append({"mode": "VC",
+                           "val": vc,
+                           "n": n,
+                           "Vf": vf,
+                           "ae": ae,
+                           "ap": ap,
+                           "dist": dist})
     return parameters
+
+
+    # Paramètre de AE
+def compute_parameters_AE(config):
+    parameters = []
+
+    for ae in config["AE"]:
+        n = config["N"]
+        dF = config["DIAM_FRAISE"]
+        fz = config["H"] / (2 * math.sqrt(-(ae * (ae - dF) / math.pow(dF, 2))))
+        vf = math.floor(config["NB_DENTS"] * fz * n)
+        dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
+        ap = config["AP"]
+
+        parameters.append({     "mode": "AE",
+                                "val": ae,
+                                "n": n,
+                                "Vf": vf,
+                                "ae": ae,
+                                "ap": ap,
+                                "dist": dist})
+    return parameters
+
+
+    # Paramètre de FZ
+def compute_parameters_FZ(config):
+    parameters = []
+
+    for fz in config["FZ"]:
+        n = config["N"]
+        vf = math.floor(config["NB_DENTS"] * fz * n)
+        dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
+        ap = config["AP"]
+        ae = config["AE"][4]
+
+        parameters.append({     "mode": "AE",
+                                "val": ae,
+                                "n": n,
+                                "Vf": vf,
+                                "ae": ae,
+                                "ap": ap,
+                                "dist": dist})
+    return parameters
+
 
 def write_headers(config, file, parameters, operation):
     file.writelines(";*******************\n")
@@ -218,7 +299,6 @@ def write_headers(config, file, parameters, operation):
     for meas in parameters:
         file.writelines(";      {}\n".format(meas))
     file.writelines(";*******************\n\n")
-
 
 def pol2cart(r, theta, nb_dec=10):
     x = round(r * math.cos(math.radians(theta)), nb_dec)
