@@ -159,7 +159,6 @@ def create_prog_spirale_measurements(config, parameters, filename):
                 index_param += 1
                 # Contrôle si la mesure est terminée
                 if index_param >= len(parameters):
-                    # TODO configure vitesse de base
                     file.writelines("N{}:\n".format(((index_param + 1) * 2) + 1))
                     file.writelines(";End of measurement, now we do a surface milling to prepare for the next measure!\n\n")
                     vf = config["SURFACE_VF"]
