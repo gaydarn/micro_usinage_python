@@ -103,15 +103,20 @@ def create_prog_spirale_measurements(config, parameters, filename):
     theta = 0
     theta_old = theta
     dist_tot = 0
-    index_param = 0
+    #index_param = 0
+    index_param = -1
     x_list = []
     x_list_tmp = []
     y_list = []
     y_list_tmp = []
     flag_measurement_complete = False
-    vf, ae, ap, n, dist = maj_param_usinage(parameters[index_param])
-    # Correction de la première distance pour ajouter les tours de réserve
-    target_dist = dist + config["NB_TOURS_RESERVE"] * math.pi * config["DIAM_PIECE"]
+    vf, ae, ap, n, dist = maj_param_usinage(parameters[index_param+1])
+    vf = config["SURFACE_VF"]
+    n = config["SURFACE_N"]
+    ae = config["SURFACE_LARG_PASSE"]
+
+    #première distance pour ajouter les tours de réserve
+    target_dist = config["NB_TOURS_RESERVE"] * math.pi * config["DIAM_PIECE"]
     # Création du fichier et écriture des entètes
     file = open(filename, "w")
     write_headers(config, file, parameters, "SPIRALE DE MESURE")
@@ -159,7 +164,7 @@ def create_prog_spirale_measurements(config, parameters, filename):
                 index_param += 1
                 # Contrôle si la mesure est terminée
                 if index_param >= len(parameters):
-                    file.writelines("N{}:\n".format(((index_param + 1) * 2) + 1))
+                    file.writelines("N{}:\n".format(index_param * 2))
                     file.writelines(";End of measurement, now we do a surface milling to prepare for the next measure!\n\n")
                     vf = config["SURFACE_VF"]
                     file.writelines("M03 S{}\n".format(config["SURFACE_N"]))
@@ -170,9 +175,11 @@ def create_prog_spirale_measurements(config, parameters, filename):
                     #ae = parameters[index_param]["ae"]
                     target_dist += dist
                     file.writelines("N{}:\n".format((index_param)*2))
-                    file.writelines("\n;OP: {}:\n".format(str(parameters[index_param])))
-                    file.writelines("N{}:\n".format(((index_param) * 2)+1))
                     file.writelines("M03 S{}\n".format(n))
+                    file.writelines("\nN{}:\n".format(((index_param) * 2) + 1))
+                    file.writelines(";OP: {}:\n".format(str(parameters[index_param])))
+
+
     msg = "Error!"
     dist_tot = round(dist_tot, 2)
     if flag_measurement_complete:
