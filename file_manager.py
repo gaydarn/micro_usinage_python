@@ -23,9 +23,9 @@ MILLINGDATADIRPATH = None
 
 
 def create_folder_structure(config_file_manager):
-    global MAINDIRPATH, DATADIRPATH, PRGDIRPATH, CONFIGDIRPATH
+    global MAINDIRPATH, DATADIRPATH, PRGDIRPATH, CONFIGDIRPATH, EMPTYDATADIRPATH, MILLINGDATADIRPATH
     DATE = datetime.date.today()
-    DATE_STRING = DATE.strftime("%Y%m%d%H")
+    DATE_STRING = DATE.strftime("%Y%m%d")
     ESPACE_NOM = "_"
     MAINDIRNAME = (
                 DATE_STRING + ESPACE_NOM + config_file_manager["MATERIAL"] + ESPACE_NOM + config_file_manager["TOOL"] + ESPACE_NOM +
@@ -35,7 +35,6 @@ def create_folder_structure(config_file_manager):
     CONFIGDIRNAME = "02_CONFIG"
     EMPTYDATADIRNAME = "00_EMPTY"
     MILLINGDATADIRNAME = "01_MILLING"
-
     root = tkinter.Tk()
     BASENAME = filedialog.askdirectory(parent=root, initialdir="/", title='Please select a directory')
     # TODO: Why not quit tkinter?

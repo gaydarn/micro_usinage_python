@@ -29,6 +29,13 @@ def main():
     progname_spirale_measurement = os.path.join(file_manager.PRGDIRPATH, "sub_spirale_measurements.nc")
     create_prog_spirale_measurements(config, parameters, progname_spirale_measurement)
 
+    # Création du fichier config usinage
+    fichier_config_usinage = os.path.join(file_manager.CONFIGDIRPATH, "config.json")
+
+    # Création du fichier config manager
+    fichier_config_manager = os.path.join(file_manager.CONFIGDIRPATH, "config_file_manager.json")
+
+
     progname_main = os.path.join(file_manager.PRGDIRPATH, "main.nc")
     create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement)
 
