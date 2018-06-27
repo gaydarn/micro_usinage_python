@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import numpy as np
 import matplotlib.pyplot as plt
-import math
 import json
 import ntpath
+import file_manager
+import math
+import os
 
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 
@@ -13,18 +14,22 @@ def main():
     # Chargement du fichier de configuration
     config = load_config('config.json')
 
+    print(file_manager.DATADIRPATH)
+    file_manager.create_folder_structure(None)
+    print(file_manager.DATADIRPATH)
+
     # Calcul des paramètres d'usinage
     parameters = compute_parameters(config)
 
     # Création du programme de surfaçage
-    progname_surface_milling = "micro_usinage/sub_spirale_surface_milling.nc"
+    progname_surface_milling = os.path.join(file_manager.PRGDIRPATH, "sub_spirale_surface_milling.nc")
     create_prog_surface_milling(config, parameters, progname_surface_milling)
 
     # Création du programme de mesure
-    progname_spirale_measurement = "micro_usinage/sub_spirale_measurements.nc"
+    progname_spirale_measurement = os.path.join(file_manager.PRGDIRPATH, "sub_spirale_measurements.nc")
     create_prog_spirale_measurements(config, parameters, progname_spirale_measurement)
 
-    progname_main = "micro_usinage/main.nc"
+    progname_main = os.path.join(file_manager.PRGDIRPATH, "main.nc")
     create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement)
 
 def create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement):
