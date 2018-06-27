@@ -15,7 +15,7 @@ def main():
     config = load_config('config.json')
 
     print(file_manager.DATADIRPATH)
-    file_manager.create_folder_structure(None)
+    file_manager.create_folder_structure(file_manager.config_file_manager)
     print(file_manager.DATADIRPATH)
 
     # Calcul des paramètres d'usinage
