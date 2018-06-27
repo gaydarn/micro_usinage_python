@@ -131,7 +131,6 @@ def create_prog_spirale_measurements(config, parameters, filename):
     file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
     file.writelines("G1 Z{} F1000\n".format(ap))
     file.writelines("\n;OP: {}:\n".format(str(parameters[index_param])))
-    file.writelines("N{}:\n".format(index_param + 1))
 
     while r > (config["DIAM_FRAISE"] / 2) - 0.05:
 
