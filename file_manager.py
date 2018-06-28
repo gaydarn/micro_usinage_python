@@ -55,4 +55,14 @@ def create_folder_structure(config_file_manager):
     os.mkdir(CONFIGDIRPATH)
 
 
+def load_config(path):
+    with open(path, 'rb') as fp:
+        config = json.load(fp)
+    return config
+
+
+def store_config(config, path):
+    with open(path, 'w') as fp:
+        json.dump(config, fp, sort_keys=True, indent=4)
+
 

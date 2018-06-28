@@ -4,16 +4,11 @@ import numpy as np
 import glob
 from numpy import array
 import math
-import json
+import file_manager
+import main_micro_usinage
 
 colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray',
           'tab:olive', 'tab:cyan']
-
-def load_config(filename):
-    infile = open(filename)
-    config = json.load(infile)
-    infile.close()
-    return config
 
 
 def get_files_data(path, file_selection=None):
@@ -115,7 +110,7 @@ def plot_files_data(_files_data_empty, _files_data_milling):
     plt.show()
 
 
-def derivative_and_plot(x, y):
+def derivative_and_plot(x, y, ylabel, xlabel, title):
     dy = np.zeros(y.shape, np.float)
     dy[0: -1] = (np.diff(y) / np.diff(x))
     dy[-1] = (y[-1] - y[-2]) / (x[-1] - x[-2])
@@ -132,7 +127,7 @@ def derivative_and_plot(x, y):
     plt.show()
 
     # Chargement du fichier de configuration
-    config = load_config('config.json')
+    config = file_manager.load_config('config.json')
 
 
 if __name__ == "__main__":
@@ -157,39 +152,98 @@ if __name__ == "__main__":
     for data in files_data_vide:
         mean_vide.append(compute_mean_value(data, plot=plot_display, verbose=True))
 
-    # TODO: Get info from config file saved with the measurement
+    # chargement du fichier de configuation du programme
+    config = file_manager.load_config('config.json')
+
+    #   mode VC
     Vc_list = config["VC"]
-    ae = 0.05
-    ap = 1.5
+    Ae = config["AE"][0]
+    Fz = config["FZ"][0]
+
     R = 0.9
-    d = 2.6
-    fz = 0.07
-    z = 3
+    ap = config["AP"]
+    d = config["DIAM_FRAISE"]
+    z = config["NB_DENTS"]
 
     n = 0
+    Vf = 0
+    f = 0
     for ix, Vc in enumerate(Vc_list):
         n = (Vc * 1000) / (np.pi * d)
-    Vf = fz * n * z
+    Vf = Fz * n * z
     f = Vf / n
-
-    print("")
-    print("test de graphique")
 
     courant_util = []
     courant_section = []
     ec = []
 
     # TODO: modifier les graphiques
-
     for ix, Vc in enumerate(Vc_list):
         courant_util.append((mean_usinage[ix] - mean_vide[ix]))
-        courant_section.append(courant_util[ix] / (ae * ap))
+        courant_section.append(courant_util[ix] / (Ae * ap))
         ec.append((60 * R * math.pow((courant_util[ix]), 2)) / (Vc * ap * f))
 
-    derivative_and_plot(array(Vc_list), array(courant_util))
+    #derivative_and_plot(array(Vc_list), array(courant_util))
 
-    derivative_and_plot(array(Vc_list), array(courant_section))
+    #derivative_and_plot(array(Vc_list), array(courant_section))
 
-    derivative_and_plot(array(Vc_list), array(ec))
+    #derivative_and_plot(array(Vc_list), array(ec))
 
 
+
+
+
+    #   mode FZ
+    Vc = config["VC"][0]
+    Ae = config["AE"][0]
+    Fz_list = config["FZ"]
+
+    R = 0.9
+    ap = config["AP"]
+    d = config["DIAM_FRAISE"]
+    z = config["NB_DENTS"]
+    n = (Vc * 1000) / (np.pi * d)
+
+
+    Vf = 0
+    f = 0
+    h = []
+    for ix, Fz in enumerate(Fz_list):
+        h.append(2*Fz*math.sqrt((Ae/d)*(1-(Ae/d))))
+        Vf = Fz * n * z
+        f = Vf / n
+
+    #   TODO modifier les graphiques pour obtenir les bonnnes légendes
+   # derivative_and_plot(array(h), array(courant_util))
+   # derivative_and_plot(array(h), array(courant_section))
+    # derivative_and_plot(array(h), array(ec))
+
+
+
+
+    #   mode AE
+    Vc = config["VC"][0]
+    Ae_list = config["AE"]
+    Fz = []
+
+    R = 0.9
+    ap = config["AP"]
+    d = config["DIAM_FRAISE"]
+    z = config["NB_DENTS"]
+    n = (Vc * 1000) / (np.pi * d)
+
+
+    Vf = []
+    f = 0
+    h = []
+    for ix, Ae in enumerate(Ae_list):
+        Fz.append(config["H"] / (2 * math.sqrt(-(Ae * (Ae - d) / math.pow(d, 2)))))
+        for ix, Fz in enumerate(Ae_list):
+            Vf.append(Fz * n * z)
+    f = Vf / n
+
+    derivative_and_plot(array(Ae), array(courant_util))
+
+    derivative_and_plot(array(Ae), array(courant_section))
+
+    derivative_and_plot(array(Ae), array(ec))
