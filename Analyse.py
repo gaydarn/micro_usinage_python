@@ -10,7 +10,7 @@ colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:b
           'tab:olive', 'tab:cyan']
 
 def load_config(filename):
-    infile = open('config.json')
+    infile = open(filename)
     config = json.load(infile)
     infile.close()
     return config
@@ -131,8 +131,8 @@ def derivative_and_plot(x, y):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
-# Chargement du fichier de configuration
-config = load_config('config.json')
+    # Chargement du fichier de configuration
+    config = load_config('config.json')
 
 
 if __name__ == "__main__":

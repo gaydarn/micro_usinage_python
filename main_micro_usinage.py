@@ -12,11 +12,13 @@ colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 def main():
 
     # Chargement du fichier de configuration
-    config = load_config('config.json')
 
-    print(file_manager.DATADIRPATH)
-    file_manager.create_folder_structure(file_manager.config_file_manager)
-    print(file_manager.DATADIRPATH)
+    config = load_config('config.json')
+    config_file_manager = load_config('config_file_manager.json')
+    file_manager.create_folder_structure(config_file_manager)
+
+
+
 
     # Calcul des paramètres d'usinage
     parameters = compute_parameters(config)
@@ -46,15 +48,15 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     file.writelines(";PROGRAMME PRINCIPAL\n")
     file.writelines(";**********************\n\n")
     # Début du programme (statique)
-    file.writelines("T1 \n")
-    #file.writelines("T1 M6\n") pour changement de broche
+    # file.writelines("T1 \n") si la machine n'a pas de changeur d'outil
+    file.writelines("T1 M6\n")
     file.writelines("G53 G01 B0 C0 F100\n")
     file.writelines("G55\n")
     file.writelines("L {}\n".format(path_leaf(progname_surface_milling)))
     file.writelines("L {}\n".format(path_leaf(progname_spirale_measurement)))
     file.writelines("M05\n")
-    file.writelines("T0\n")
-    # file.writelines("T0 M6\n")  pour changement de broche
+    # file.writelines("T0\n") si la machine n'a pas de changeur d'outil
+    file.writelines("T0 M6\n")
     file.writelines("M30\n")
 
 def create_prog_surface_milling(config, parameters, filename):
@@ -133,8 +135,8 @@ def create_prog_spirale_measurements(config, parameters, filename):
     file = open(filename, "w")
     write_headers(config, file, parameters, "SPIRALE DE MESURE")
     # Début du programme (statique)
-    file.writelines("T1 \n")
-    #file.writelines("T1 M6\n") pour changement de broche
+    # file.writelines("T1 \n") si la machine n'a pas de changeur d'outil
+    file.writelines("T2 M6\n")
     file.writelines("G90\n")
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
@@ -226,8 +228,9 @@ def maj_param_usinage(parameter):
     return vf, ae, ap, n, dist
 
 
+
 def load_config(filename):
-    infile = open('config.json')
+    infile = open(filename)
     config = json.load(infile)
     infile.close()
     return config

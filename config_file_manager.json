@@ -1,7 +1,7 @@
 {
-    "MATERIAL": "INOX",
+    "MATERIAL": "LAITON",
     "TOOL": "1520",
     "COATING": "SANS",
-    "MODE": "AE",
-    "COMMENT": "89"
+    "MODE": "VC",
+    "COMMENT": "TEST"
 }

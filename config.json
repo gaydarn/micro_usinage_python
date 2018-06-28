@@ -1,5 +1,4 @@
-{
-    "ANGLE_CHANGE_DIAM": -1,
+{   "ANGLE_CHANGE_DIAM": -1,
     "DIAM_FRAISE": 3,
     "DIAM_PIECE": 15,
     "NB_DENTS": 3,
@@ -14,7 +13,7 @@
     "SURFACE_VF" :8189,
 
     "TEMPS_MESURE": 2.7,
-    "MODE":"AE",
+    "MODE":"VC",
     "N" : 45000,
     "H" : 0.02,
     "AP" : 5,
