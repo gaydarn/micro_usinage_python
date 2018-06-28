@@ -3,9 +3,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import glob
 from numpy import array
+import math
+import json
 
 colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray',
           'tab:olive', 'tab:cyan']
+
+def load_config(filename):
+    infile = open('config.json')
+    config = json.load(infile)
+    infile.close()
+    return config
 
 
 def get_files_data(path, file_selection=None):
@@ -123,6 +131,9 @@ def derivative_and_plot(x, y):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
+# Chargement du fichier de configuration
+config = load_config('config.json')
+
 
 if __name__ == "__main__":
 
@@ -147,10 +158,10 @@ if __name__ == "__main__":
         mean_vide.append(compute_mean_value(data, plot=plot_display, verbose=True))
 
     # TODO: Get info from config file saved with the measurement
-    Vc_list = [490, 470, 450, 400, 350, 300, 250, 200, 150, 100]
+    Vc_list = config["VC"]
     ae = 0.05
     ap = 1.5
-    U = 100
+    R = 0.9
     d = 2.6
     fz = 0.07
     z = 3
@@ -167,13 +178,18 @@ if __name__ == "__main__":
     courant_util = []
     courant_section = []
     ec = []
+
+    # TODO: modifier les graphiques
+
     for ix, Vc in enumerate(Vc_list):
         courant_util.append((mean_usinage[ix] - mean_vide[ix]))
         courant_section.append(courant_util[ix] / (ae * ap))
-        ec.append((60 * U * courant_util[ix]) / (Vc * ap * f))
+        ec.append((60 * R * math.pow((courant_util[ix]), 2)) / (Vc * ap * f))
 
     derivative_and_plot(array(Vc_list), array(courant_util))
 
     derivative_and_plot(array(Vc_list), array(courant_section))
 
     derivative_and_plot(array(Vc_list), array(ec))
+
+

@@ -247,8 +247,8 @@ def compute_parameters_VC(config):
     parameters = []
 
     for vc in config["VC"]:
-        ae = config["AE"][5]
-        fz = config["FZ"][3]
+        ae = config["AE"][0]
+        fz = config["FZ"][0]
         n = math.floor(1000 * vc / (config["DIAM_FRAISE"] * math.pi))
         vf = math.floor(config["NB_DENTS"] * fz * n)
         dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
@@ -295,7 +295,7 @@ def compute_parameters_FZ(config):
         vf = math.floor(config["NB_DENTS"] * fz * n)
         dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
         ap = config["AP"]
-        ae = config["AE"][4]
+        ae = config["AE"][0]
 
         parameters.append({     "mode": "AE",
                                 "val": ae,

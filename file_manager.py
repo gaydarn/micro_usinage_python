@@ -36,7 +36,7 @@ def create_folder_structure(config_file_manager):
     EMPTYDATADIRNAME = "00_EMPTY"
     MILLINGDATADIRNAME = "01_MILLING"
     root = tkinter.Tk()
-    BASENAME = filedialog.askdirectory(parent=root, initialdir="/", title='Please select a directory')
+    BASENAME = filedialog.askdirectory(parent=root, initialdir=r"C:\Users\thibaut.nicoulin\Desktop\test", title='Please select a directory')
     # TODO: Why not quit tkinter?
     root.quit()
 

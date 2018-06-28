@@ -14,7 +14,7 @@
     "SURFACE_VF" :8189,
 
     "TEMPS_MESURE": 2.7,
-    "MODE":"VC",
+    "MODE":"AE",
     "N" : 45000,
     "H" : 0.02,
     "AP" : 5,
