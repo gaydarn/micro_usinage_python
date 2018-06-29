@@ -1,7 +1,7 @@
 {
     "MATERIAL": "LAITON",
-    "TOOL": "1520",
+    "TOOL": "STOCK",
     "COATING": "SANS",
     "MODE": "VC",
-    "COMMENT": "param"
+    "COMMENT": "Test1"
 }

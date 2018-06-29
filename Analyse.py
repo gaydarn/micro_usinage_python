@@ -110,19 +110,19 @@ def plot_files_data(_files_data_empty, _files_data_milling):
     plt.show()
 
 
-def derivative_and_plot(x, y, ylabel, xlabel, title):
+def derivative_and_plot(x, y, ylabel1, xlabel, ylabel2, title):
     dy = np.zeros(y.shape, np.float)
     dy[0: -1] = (np.diff(y) / np.diff(x))
     dy[-1] = (y[-1] - y[-2]) / (x[-1] - x[-2])
 
     fig, ax1 = plt.subplots()
     ax1.plot(x, y, c=colors[0])
-    ax1.set_ylabel('Courant [mA]')
-    ax1.set_xlabel('Vc [m/min]')
+    ax1.set_ylabel(ylabel1)
+    ax1.set_xlabel(xlabel)
     ax2 = ax1.twinx()
     ax2.plot(x, dy, c=colors[1])
     ax2.scatter(x, dy, c=colors[1])
-    ax1.set_ylabel('Courant derivé')
+    ax1.set_ylabel(ylabel2)
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
 
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     Fz = config["FZ"][0]
 
     R = 0.9
-    ap = config["AP"]
+    ap = np.abs(config["AP"])
     d = config["DIAM_FRAISE"]
     z = config["NB_DENTS"]
 
@@ -183,13 +183,13 @@ if __name__ == "__main__":
         courant_section.append(courant_util[ix] / (Ae * ap))
         ec.append((60 * R * math.pow((courant_util[ix]), 2)) / (Vc * ap * f))
 
-    #derivative_and_plot(array(Vc_list), array(courant_util))
+    derivative_and_plot(array(Vc_list), array(courant_util),'', 'Vc [m/min]', 'Courant [mA]', 'Titre')
 
-    #derivative_and_plot(array(Vc_list), array(courant_section))
+    derivative_and_plot(array(Vc_list), array(courant_section),'', 'Vc [m/min]', 'Courant/section [mA/mm^2]', 'Titre')
 
-    #derivative_and_plot(array(Vc_list), array(ec))
+    derivative_and_plot(array(Vc_list), array(ec),'', 'Vc [m/min]', 'énergie de coupe [J/cm^3]', 'Titre')
 
-
+    print(ec)
 
 
 
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     #   TODO modifier les graphiques pour obtenir les bonnnes légendes
    # derivative_and_plot(array(h), array(courant_util))
    # derivative_and_plot(array(h), array(courant_section))
-    # derivative_and_plot(array(h), array(ec))
+    #derivative_and_plot(array(h), array(ec))
 
 
 
@@ -240,10 +240,10 @@ if __name__ == "__main__":
         Fz.append(config["H"] / (2 * math.sqrt(-(Ae * (Ae - d) / math.pow(d, 2)))))
         for ix, Fz in enumerate(Ae_list):
             Vf.append(Fz * n * z)
-    f = Vf / n
+    #f = Vf / n
 
-    derivative_and_plot(array(Ae), array(courant_util))
+    #derivative_and_plot(array(Ae), array(courant_util))
 
-    derivative_and_plot(array(Ae), array(courant_section))
+    #derivative_and_plot(array(Ae), array(courant_section))
 
-    derivative_and_plot(array(Ae), array(ec))
+    #derivative_and_plot(array(Ae), array(ec))

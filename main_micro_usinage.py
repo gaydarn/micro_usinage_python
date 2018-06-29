@@ -53,7 +53,7 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     # file.writelines("T1 \n") si la machine n'a pas de changeur d'outil
     file.writelines("T1 M6\n")
     file.writelines("G53 G01 B0 C0 F100\n")
-    file.writelines("G55\n")
+    file.writelines("G54\n")
     file.writelines("L {}\n".format(path_leaf(progname_surface_milling)))
     file.writelines("L {}\n".format(path_leaf(progname_spirale_measurement)))
     file.writelines("M05\n")

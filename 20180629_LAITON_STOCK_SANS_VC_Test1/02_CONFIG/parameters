@@ -1,0 +1,37 @@
+{
+    "AE": [
+        0.05
+    ],
+    "ANGLE_CHANGE_DIAM": -1,
+    "AP": -3.2,
+    "DIAM_FRAISE": 3,
+    "DIAM_PIECE": 15,
+    "FZ": [
+        0.07
+    ],
+    "H": 0.02,
+    "MODE": "VC",
+    "N": 45000,
+    "NB_DECIMALES": 4,
+    "NB_DENTS": 3,
+    "NB_TOURS_RESERVE": 2,
+    "R_MIN": 0.5,
+    "SURFACE_LARG_PASSE": 0.05,
+    "SURFACE_N": 54321,
+    "SURFACE_PROF_PASSE": -0.2,
+    "SURFACE_VF": 10000,
+    "SURPLUS_PREM_PASSE": 0.05,
+    "TEMPS_MESURE": 4,
+    "VC": [
+        550,
+        500,
+        450,
+        400,
+        350,
+        300,
+        250,
+        200,
+        150,
+        100
+    ]
+}
