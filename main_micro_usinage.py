@@ -16,11 +16,17 @@ def main():
     config = file_manager.load_config('config.json')
     config_file_manager = file_manager.load_config('config_file_manager.json')
     file_manager.create_folder_structure(config_file_manager)
+    file_manager.store_config(config, fichier_parameters)
+    file_manager.store_config(config_file_manager, fichier_parameters)
 
     # Calcul des paramètres d'usinage
     parameters = compute_parameters(config)
     fichier_parameters = os.path.join(file_manager.CONFIGDIRPATH, "parameters")
-    file_manager.store_config(config, fichier_parameters)
+    file_manager.store_config(parameters, fichier_parameters)
+
+    # Création du programme de surfaçage
+    programe_name = os.path.join(file_manager.PRGDIRPATH, "COM.nc")
+    create_prog_main(programe_name)
 
     # Création du programme de surfaçage
     progname_surface_milling = os.path.join(file_manager.PRGDIRPATH, "sub_spirale_surface_milling.nc")
@@ -52,14 +58,49 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     # Début du programme (statique)
     # file.writelines("T1 \n") si la machine n'a pas de changeur d'outil
     file.writelines("T1 M6\n")
-    file.writelines("G53 G01 B0 C0 F100\n")
+    file.writelines("G53 G01 B0 C0 F1000\n")
     file.writelines("G54\n")
+    file.writelines("G01 Z20\n")
+    file.writelines(";contact outil matière\n")
+    file.writelines("M1\n")
+    file.writelines(config["LUBRIFICATION"]+"\n")
     file.writelines("L {}\n".format(path_leaf(progname_surface_milling)))
+    file.writelines("G102 Z1\n")
+    file.writelines("M9\n")
+    file.writelines("T2 M6\n")
+    file.writelines(";contact outil matière\n")
+    file.writelines("M1\n")
+    file.writelines(config["LUBRIFICATION"]+"\n")
     file.writelines("L {}\n".format(path_leaf(progname_spirale_measurement)))
     file.writelines("M05\n")
     # file.writelines("T0\n") si la machine n'a pas de changeur d'outil
     file.writelines("T0 M6\n")
+    file.writelines("M9\n")
     file.writelines("M30\n")
+
+# création d'une fonction contact outil matière
+def create_contact_outil_matière (program_name):
+    # Création du fichier et écriture des entètes
+    file = open(program_name, "w")
+    file.writelines(";**********************\n")
+    file.writelines(";Contact outil-matière\n")
+    file.writelines(";**********************\n\n")
+    file.writelines("M3 S60000\n")
+    file.writelines("M1\n")
+    file.writelines("#TRAFO ON\n")
+    file.writelines("G01 X3 Y0 F1000\n")
+    file.writelines("G01 Z2\n")
+    file.writelines("M1\n")
+    file.writelines("G01 Z1\n")
+    file.writelines("M3 S60000\n")
+    file.writelines("G01 Z0.5\n")
+    file.writelines("M100=24\n")
+    file.writelines("G100 Z-0.01\n")
+    file.writelines("M101=[V.A.MOFFS.Z*10000]\n")
+    file.writelines("G101 Z1\n")
+    file.writelines("G01 Z5 F1000\n")
+    file.writelines("G00 Z10\n")
+    file.writelines(";fin du contact outil matière\n")
 
 def create_prog_surface_milling(config, parameters, filename):
 
@@ -143,6 +184,7 @@ def create_prog_spirale_measurements(config, parameters, filename):
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
     file.writelines("M03 S{}\n".format(n))
+    file.writelines("M8\n")
     file.writelines("G0 Z10\n")
     file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
     file.writelines("G1 Z{} F1000\n".format(ap))
@@ -245,13 +287,15 @@ def compute_parameters(config):
 def compute_parameters_VC(config):
     parameters = []
 
+    ae = config["AE"][0]
+    fz = config["FZ"][0]
+    ap = config["AP"]
+
     for vc in config["VC"]:
-        ae = config["AE"][0]
-        fz = config["FZ"][0]
+
         n = math.floor(1000 * vc / (config["DIAM_FRAISE"] * math.pi))
         vf = math.floor(config["NB_DENTS"] * fz * n)
         dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
-        ap = config["AP"]
 
         parameters.append({"mode": "VC",
                            "val": vc,
@@ -259,6 +303,7 @@ def compute_parameters_VC(config):
                            "Vf": vf,
                            "ae": ae,
                            "ap": ap,
+                           "fz": fz,
                            "dist": dist})
     return parameters
 
@@ -267,13 +312,15 @@ def compute_parameters_VC(config):
 def compute_parameters_AE(config):
     parameters = []
 
+    n = config["N"]
+    dF = config["DIAM_FRAISE"]
+    ap = config["AP"]
+
     for ae in config["AE"]:
-        n = config["N"]
-        dF = config["DIAM_FRAISE"]
+
         fz = config["H"] / (2 * math.sqrt(-(ae * (ae - dF) / math.pow(dF, 2))))
         vf = math.floor(config["NB_DENTS"] * fz * n)
         dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
-        ap = config["AP"]
 
         parameters.append({     "mode": "AE",
                                 "val": ae,
@@ -281,6 +328,7 @@ def compute_parameters_AE(config):
                                 "Vf": vf,
                                 "ae": ae,
                                 "ap": ap,
+                                "fz" : fz,
                                 "dist": dist})
     return parameters
 
@@ -289,12 +337,14 @@ def compute_parameters_AE(config):
 def compute_parameters_FZ(config):
     parameters = []
 
+    n = config["N"]
+    ap = config["AP"]
+    ae = config["AE"][0]
+
     for fz in config["FZ"]:
-        n = config["N"]
+
         vf = math.floor(config["NB_DENTS"] * fz * n)
         dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
-        ap = config["AP"]
-        ae = config["AE"][0]
 
         parameters.append({     "mode": "AE",
                                 "val": ae,
@@ -302,6 +352,7 @@ def compute_parameters_FZ(config):
                                 "Vf": vf,
                                 "ae": ae,
                                 "ap": ap,
+                                "fz": fz,
                                 "dist": dist})
     return parameters
 

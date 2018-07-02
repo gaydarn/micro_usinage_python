@@ -7,8 +7,10 @@ import math
 import file_manager
 import main_micro_usinage
 
+
 colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray',
           'tab:olive', 'tab:cyan']
+
 
 
 def get_files_data(path, file_selection=None):
@@ -50,8 +52,8 @@ def compute_mean_value(file_data, plot=False, verbose=False):
     ixf = 0
     with_window = 100
     threshold_front = 7
-    threshold_stab = 5
-    threshold_instab = 5
+    threshold_stab = 8
+    threshold_instab = 8
     state = "SEARCH_STAB"
     for _ix, pt in enumerate(dy):
         if state == "SEARCH_FIRST_FRONT":
@@ -107,6 +109,7 @@ def plot_files_data(_files_data_empty, _files_data_milling):
         plt.plot(files_data_usinage[_ix]["Time"], files_data_usinage[_ix]["Value"], c=colors[_ix % len(colors)])
         plt.ylabel('Courant [mA]')
         plt.xlabel('Temps [ms]')
+        #plt.title.append()
     plt.show()
 
 
@@ -132,14 +135,16 @@ def derivative_and_plot(x, y, ylabel1, xlabel, ylabel2, title):
 
 if __name__ == "__main__":
 
-    files_selection = []  # ['N1', 'N3', 'N5', 'N7', 'N9', 'N11', 'N13', 'N15', 'N17', 'N19', 'N21']
-    files_data_vide = get_files_data(r'.\Mesure\VC Vide', files_selection)
-    files_data_usinage = get_files_data(r'.\Mesure\VC Usinage', files_selection)
+    files_selection = []
+    files_data_vide = get_files_data(r'C:\Users\thibaut.nicoulin\Desktop\test\20180629_LAITON_1520_SANS_VC_Test3\00_DATA\00_EMPTY', files_selection)
+    files_data_usinage = get_files_data(r'C:\Users\thibaut.nicoulin\Desktop\test\20180629_LAITON_1520_SANS_VC_Test3\00_DATA\02_MILLING', files_selection)
     plot_files_data(files_data_vide, files_data_usinage)
 
     #   Graphique de chaque courbe : si oui : TRUE  si non : FALSE
 
     plot_display = False
+
+
     print("")
     print("Moyenne usinage")
     mean_usinage = []
@@ -154,96 +159,94 @@ if __name__ == "__main__":
 
     # chargement du fichier de configuation du programme
     config = file_manager.load_config('config.json')
-
-    #   mode VC
-    Vc_list = config["VC"]
-    Ae = config["AE"][0]
-    Fz = config["FZ"][0]
-
-    R = 0.9
-    ap = np.abs(config["AP"])
-    d = config["DIAM_FRAISE"]
-    z = config["NB_DENTS"]
-
-    n = 0
-    Vf = 0
-    f = 0
-    for ix, Vc in enumerate(Vc_list):
-        n = (Vc * 1000) / (np.pi * d)
-    Vf = Fz * n * z
-    f = Vf / n
-
-    courant_util = []
-    courant_section = []
-    ec = []
-
-    # TODO: modifier les graphiques
-    for ix, Vc in enumerate(Vc_list):
-        courant_util.append((mean_usinage[ix] - mean_vide[ix]))
-        courant_section.append(courant_util[ix] / (Ae * ap))
-        ec.append((60 * R * math.pow((courant_util[ix]), 2)) / (Vc * ap * f))
-
-    derivative_and_plot(array(Vc_list), array(courant_util),'', 'Vc [m/min]', 'Courant [mA]', 'Titre')
-
-    derivative_and_plot(array(Vc_list), array(courant_section),'', 'Vc [m/min]', 'Courant/section [mA/mm^2]', 'Titre')
-
-    derivative_and_plot(array(Vc_list), array(ec),'', 'Vc [m/min]', 'énergie de coupe [J/cm^3]', 'Titre')
-
-    print(ec)
-
-
-
-    #   mode FZ
-    Vc = config["VC"][0]
-    Ae = config["AE"][0]
-    Fz_list = config["FZ"]
-
-    R = 0.9
-    ap = config["AP"]
-    d = config["DIAM_FRAISE"]
-    z = config["NB_DENTS"]
-    n = (Vc * 1000) / (np.pi * d)
-
-
-    Vf = 0
-    f = 0
-    h = []
-    for ix, Fz in enumerate(Fz_list):
-        h.append(2*Fz*math.sqrt((Ae/d)*(1-(Ae/d))))
-        Vf = Fz * n * z
-        f = Vf / n
-
-    #   TODO modifier les graphiques pour obtenir les bonnnes légendes
-   # derivative_and_plot(array(h), array(courant_util))
-   # derivative_and_plot(array(h), array(courant_section))
-    #derivative_and_plot(array(h), array(ec))
+    #     main_micro_usinage = file_manager.load_config('main_micro_usinage.py')
 
 
 
 
-    #   mode AE
-    Vc = config["VC"][0]
-    Ae_list = config["AE"]
-    Fz = []
-
-    R = 0.9
-    ap = config["AP"]
-    d = config["DIAM_FRAISE"]
-    z = config["NB_DENTS"]
-    n = (Vc * 1000) / (np.pi * d)
+    parameters = main_micro_usinage.compute_parameters(config)
 
 
-    Vf = []
-    f = 0
-    h = []
-    for ix, Ae in enumerate(Ae_list):
-        Fz.append(config["H"] / (2 * math.sqrt(-(Ae * (Ae - d) / math.pow(d, 2)))))
-        for ix, Fz in enumerate(Ae_list):
-            Vf.append(Fz * n * z)
-    #f = Vf / n
+    if "VC" in config["MODE"]:
+        #   mode VC
+        Vc_list = config["VC"]
+        Ae = config["AE"][0]
+        Fz = config["FZ"][0]
+        R = 0.9
+        ap = np.abs(config["AP"])
+        d = config["DIAM_FRAISE"]
+        z = config["NB_DENTS"]
 
-    #derivative_and_plot(array(Ae), array(courant_util))
+        # calcul pour la création des graphiques
+        f = z * Fz
+        courant_util = []
+        ec = []
+        for ix, Vc in enumerate(Vc_list):
+                courant_util.append((mean_usinage[ix] - mean_vide[ix]))
+                ec.append((60 * R * math.pow((courant_util[ix]/1000), 2))/(Vc_list[ix] * 1000 * ap * f))
 
-    #derivative_and_plot(array(Ae), array(courant_section))
+        derivative_and_plot(array(Vc_list), array(courant_util),'', 'Vc [m/min]', 'Courant [mA]', 'Titre')
 
-    #derivative_and_plot(array(Ae), array(ec))
+        derivative_and_plot(array(Vc_list), array(ec),'', 'Vc [m/min]', 'énergie de coupe [J/mm^3]', 'Titre')
+
+    elif "FZ" in config["MODE"]:
+        #   mode FZ
+        Vc = 0
+        Ae = config["AE"][0]
+        Fz_list = config["FZ"]
+        R = 0.9
+        ap = np.abs(config["AP"])
+        d = config["DIAM_FRAISE"]
+        z = config["NB_DENTS"]
+        n = config['N']
+
+        # calcul pour la création des graphiques
+        Vc = (n * np.pi * d) / 1000
+        f = []
+        h = []
+        courant_util = []
+        ec = []
+        for ix, Fz in enumerate(Fz_list):
+            f.append(Fz * z)
+            h.append(2 * Fz * math.sqrt((Ae / d) * (1 - (Ae / d))))
+            courant_util.append((mean_usinage[ix] - mean_vide[ix]))
+            ec.append((60 * R * math.pow((courant_util[ix] / 1000), 2)) / (Vc * 1000 * ap * f[ix]))
+
+        derivative_and_plot(array(h), array(courant_util), '', 'h [mm]', 'Courant [mA]', 'Titre')
+
+        derivative_and_plot(array(h), array(ec), '', 'h [mm]', 'énergie de coupe [J/mm^3]', 'Titre')
+
+    elif "AE" in config["MODE"]:
+        #   mode AE
+        Vc = 0
+        Ae_list = config["AE"]
+        Fz = 0
+        R = 0.9
+        ap = np.abs(config["AP"])
+        d = config["DIAM_FRAISE"]
+        z = config["NB_DENTS"]
+        n = config['N']
+
+        # calcul pour la création des graphiques
+        Vc = (n * np.pi * d) / 1000
+        tab_Fz = [data['fz'] for data in parameters]
+        f = []
+        for ix, Fz in enumerate(tab_Fz):
+            f.append(Fz * z)
+        courant_util = []
+        ec = []
+        for ix, Ae in enumerate(Ae_list):
+            courant_util.append((mean_usinage[ix] - mean_vide[ix]))
+            ec.append((60 * R * math.pow((courant_util[ix] / 1000), 2)) / (Vc * 1000 * ap * f[ix]))
+
+        derivative_and_plot(array(Ae_list), array(courant_util), '', 'ae [mm]', 'Courant [mA]', 'Titre')
+
+        derivative_and_plot(array(Ae_list), array(ec), '', 'ae [mm]', 'énergie de coupe [J/mm^3]', 'Titre')
+
+
+
+
+
+
+
+

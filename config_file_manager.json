@@ -1,7 +1,7 @@
 {
-    "MATERIAL": "LAITON",
-    "TOOL": "STOCK",
-    "COATING": "SANS",
+    "MATERIAL": "PHYNOX",
+    "TOOL": "1520",
+    "COATING": "TRIO",
     "MODE": "VC",
     "COMMENT": "Test1"
 }
