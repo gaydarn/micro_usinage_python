@@ -54,6 +54,27 @@ def create_folder_structure(config_file_manager):
     os.mkdir(PRGDIRPATH)
     os.mkdir(CONFIGDIRPATH)
 
+def get_folder_structure():
+    global MAINDIRPATH, DATADIRPATH, PRGDIRPATH, CONFIGDIRPATH, EMPTYDATADIRPATH, MILLINGDATADIRPATH
+
+    root = tkinter.Tk()
+    MAINDIRPATH = filedialog.askdirectory(parent=root, initialdir=r"C:\Users\thibaut.nicoulin\Desktop\test",
+                                       title='Please select the measurement directory')
+    # TODO: Why not quit tkinter?
+    root.quit()
+
+    DATADIRNAME = "00_DATA"
+    PRGDIRNAME = "01_PRG"
+    CONFIGDIRNAME = "02_CONFIG"
+    EMPTYDATADIRNAME = "00_EMPTY"
+    MILLINGDATADIRNAME = "01_MILLING"
+
+    DATADIRPATH = os.path.join(MAINDIRPATH, DATADIRNAME)
+    EMPTYDATADIRPATH = os.path.join(MAINDIRPATH, DATADIRNAME, EMPTYDATADIRNAME)
+    MILLINGDATADIRPATH = os.path.join(MAINDIRPATH, DATADIRNAME, MILLINGDATADIRNAME)
+    PRGDIRPATH = os.path.join(MAINDIRPATH, PRGDIRNAME)
+    CONFIGDIRPATH = os.path.join(MAINDIRPATH, CONFIGDIRNAME)
+
 
 def load_config(path):
     with open(path, 'rb') as fp:
@@ -64,5 +85,3 @@ def load_config(path):
 def store_config(config, path):
     with open(path, 'w') as fp:
         json.dump(config, fp, sort_keys=True, indent=4)
-
-

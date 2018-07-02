@@ -15,18 +15,19 @@ def main():
 
     config = file_manager.load_config('config.json')
     config_file_manager = file_manager.load_config('config_file_manager.json')
+
     file_manager.create_folder_structure(config_file_manager)
-    file_manager.store_config(config, fichier_parameters)
-    file_manager.store_config(config_file_manager, fichier_parameters)
+
+    fichier_config = os.path.join(file_manager.CONFIGDIRPATH, "config.json")
+    fichier_config_file_manager = os.path.join(file_manager.CONFIGDIRPATH, 'config_file_manager.json')
+
+    file_manager.store_config(config, fichier_config)
+    file_manager.store_config(config_file_manager, fichier_config_file_manager)
 
     # Calcul des paramètres d'usinage
     parameters = compute_parameters(config)
-    fichier_parameters = os.path.join(file_manager.CONFIGDIRPATH, "parameters")
+    fichier_parameters = os.path.join(file_manager.CONFIGDIRPATH, "parameters.json")
     file_manager.store_config(parameters, fichier_parameters)
-
-    # Création du programme de surfaçage
-    programe_name = os.path.join(file_manager.PRGDIRPATH, "COM.nc")
-    create_prog_main(programe_name)
 
     # Création du programme de surfaçage
     progname_surface_milling = os.path.join(file_manager.PRGDIRPATH, "sub_spirale_surface_milling.nc")
@@ -46,6 +47,8 @@ def main():
 
     progname_main = os.path.join(file_manager.PRGDIRPATH, "main.nc")
     create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement)
+
+
 
 
 
