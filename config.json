@@ -1,26 +1,26 @@
 {
     "ANGLE_CHANGE_DIAM": -1,
     "DIAM_FRAISE": 3,
-    "DIAM_PIECE": 15,
+    "DIAM_PIECE": 15.5,
     "NB_DENTS": 3,
     "NB_DECIMALES": 4,
-    "NB_TOURS_RESERVE": 5,
-    "R_MIN": 0.4,
+    "NB_TOURS_RESERVE": 12,
+    "R_MIN": 0.1,
 
     "SURPLUS_PREM_PASSE": 0.00,
     "SURFACE_LARG_PASSE": 0.05,
     "SURFACE_PROF_PASSE": -0.3,
-    "SURFACE_N" : 54321,
-    "SURFACE_VF" :12345,
+    "SURFACE_N" : 44321,
+    "SURFACE_VF" :8345,
 
-    "TEMPS_MESURE": 1.9,
+    "TEMPS_MESURE": 1.5,
     "MODE":"AE",
     "N" : 60000,
     "H" : 0.02,
     "AP" : -3,
     "VC" :[],
     "FZ" :[],
-    "AE" :[0.017, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1],
+    "AE" :[0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3],
 
     "LUBRIFICATION": "M8"
 }

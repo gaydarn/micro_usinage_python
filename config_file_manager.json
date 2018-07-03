@@ -1,7 +1,7 @@
 {
-    "MATERIAL": "LAITON",
+    "MATERIAL": "INOX",
     "TOOL": "1520",
-    "COATING": "SANS",
+    "COATING": "TRIO(PO)",
     "MODE": "AE",
-    "COMMENT": "Test1"
+    "COMMENT": "TEST1"
 }

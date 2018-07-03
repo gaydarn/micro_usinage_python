@@ -37,6 +37,9 @@ def main():
     progname_spirale_measurement = os.path.join(file_manager.PRGDIRPATH, "sub_spirale_measurements.nc")
     create_prog_spirale_measurements(config, parameters, progname_spirale_measurement)
 
+    programe_COM = os.path.join(file_manager.PRGDIRPATH, "programe_COM.nc")
+    create_contact_outil_matière(programe_COM)
+
     # Création du fichier config usinage
     fichier_config_usinage = os.path.join(file_manager.CONFIGDIRPATH, "config.json")
     file_manager.store_config(config, fichier_config_usinage)
@@ -46,13 +49,13 @@ def main():
     file_manager.store_config(config_file_manager, fichier_config_manager)
 
     progname_main = os.path.join(file_manager.PRGDIRPATH, "main.nc")
-    create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement)
+    create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement, programe_COM)
 
 
 
 
 
-def create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement):
+def create_prog_main(config, progname_main, progname_surface_milling, progname_spirale_measurement, programe_COM):
     # Création du fichier et écriture des entètes
     file = open(progname_main, "w")
     file.writelines(";**********************\n")
@@ -64,16 +67,18 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     file.writelines("G53 G01 B0 C0 F1000\n")
     file.writelines("G54\n")
     file.writelines("G01 Z20\n")
-    file.writelines(";contact outil matière\n")
+    file.writelines("L {}\n".format(path_leaf(programe_COM)))
     file.writelines("M1\n")
     file.writelines(config["LUBRIFICATION"]+"\n")
+    file.writelines("#TRAFO ON\n")
     file.writelines("L {}\n".format(path_leaf(progname_surface_milling)))
     file.writelines("G102 Z1\n")
     file.writelines("M9\n")
     file.writelines("T2 M6\n")
-    file.writelines(";contact outil matière\n")
+    file.writelines("L {}\n".format(path_leaf(programe_COM)))
     file.writelines("M1\n")
     file.writelines(config["LUBRIFICATION"]+"\n")
+    file.writelines("#TRAFO ON\n")
     file.writelines("L {}\n".format(path_leaf(progname_spirale_measurement)))
     file.writelines("M05\n")
     # file.writelines("T0\n") si la machine n'a pas de changeur d'outil
@@ -82,9 +87,9 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     file.writelines("M30\n")
 
 # création d'une fonction contact outil matière
-def create_contact_outil_matière (program_name):
+def create_contact_outil_matière (program_COM):
     # Création du fichier et écriture des entètes
-    file = open(program_name, "w")
+    file = open(program_COM, "w")
     file.writelines(";**********************\n")
     file.writelines(";Contact outil-matière\n")
     file.writelines(";**********************\n\n")
@@ -92,17 +97,15 @@ def create_contact_outil_matière (program_name):
     file.writelines("M1\n")
     file.writelines("#TRAFO ON\n")
     file.writelines("G01 X3 Y0 F1000\n")
-    file.writelines("G01 Z2\n")
+    file.writelines("G01 Z2.5\n")
     file.writelines("M1\n")
-    file.writelines("G01 Z1\n")
-    file.writelines("M3 S60000\n")
-    file.writelines("G01 Z0.5\n")
     file.writelines("M100=24\n")
     file.writelines("G100 Z-0.01\n")
     file.writelines("M101=[V.A.MOFFS.Z*10000]\n")
     file.writelines("G101 Z1\n")
     file.writelines("G01 Z5 F1000\n")
     file.writelines("G00 Z10\n")
+    file.writelines("M17\n")
     file.writelines(";fin du contact outil matière\n")
 
 def create_prog_surface_milling(config, parameters, filename):
@@ -187,7 +190,6 @@ def create_prog_spirale_measurements(config, parameters, filename):
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
     file.writelines("M03 S{}\n".format(n))
-    file.writelines("M8\n")
     file.writelines("G0 Z10\n")
     file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
     file.writelines("G1 Z{} F1000\n".format(ap))
@@ -231,8 +233,6 @@ def create_prog_spirale_measurements(config, parameters, filename):
                     flag_measurement_complete = True
                 else:
                     vf, ae, ap, n, dist = maj_param_usinage(parameters[index_param])
-                    #vf = parameters[index_param]["Vf"]
-                    #ae = parameters[index_param]["ae"]
                     target_dist += dist
                     file.writelines("N{}:\n".format((index_param)*2))
                     file.writelines("M03 S{}\n".format(n))
