@@ -89,17 +89,18 @@ def compute_mean_value(file_data, plot=False, verbose=False, title="default"):
         print("ERROR: Unable to found the mean value!")
 
     if plot:
-        plt.plot(x, y)
+        plt.plot(x, y, label='Courant mesuré')
         plt.ylabel('Courant [mA]')
         plt.xlabel('Temps [ms]')
-        plt.plot(x, dy)
+        plt.plot(x, dy, label='Dérivée')
         plt.scatter(x[ixf], y[ixf], s=100, c="y")
         plt.scatter(x[ix1], y[ix1], s=100, c="g")
         plt.scatter(x[ix2], y[ix2], s=100, c="r")
         mean_x = [x[ix1], x[ix2]]
         mean_y = [mean, mean]
-        plt.plot(mean_x, mean_y, c="k")
+        plt.plot(mean_x, mean_y, label='Courant moyen', c="k")
         plt.title(title)
+        plt.legend(loc="best")
         plt.show()
 
     return mean
@@ -124,15 +125,17 @@ def derivative_and_plot(x, y, ylabel1, xlabel, ylabel2, Title="default"):
     dy[-1] = (y[-1] - y[-2]) / (x[-1] - x[-2])
 
     fig, ax1 = plt.subplots()
-    ax1.plot(x, y, c=colors[0])
+    ax1.plot(x, y, '-', label='Courant util', c=colors[0])
     ax1.set_ylabel(ylabel1)
     ax1.set_xlabel(xlabel)
     ax2 = ax1.twinx()
-    ax2.plot(x, dy,'k--', c=colors[1])
+    ax2.plot(x, dy,'k--', label='Dérivée', c=colors[1])
     ax2.scatter(x, dy, c=colors[1])
-    ax1.set_ylabel(ylabel2)
-    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    ax2.set_ylabel(ylabel2)
+    #fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.title(Title)
+    ax1.legend(bbox_to_anchor=(1.01, -0.05), loc=3, ncol=2, mode="expand", borderaxespad=0)
+    ax2.legend(bbox_to_anchor=(1.01, -0.10), loc=3, ncol=2, mode="expand", borderaxespad=0)
     plt.show()
 
     # Chargement du fichier de configuration
@@ -145,17 +148,17 @@ if __name__ == "__main__":
     files_selection = []
     files_data_vide = get_files_data(file_manager.EMPTYDATADIRPATH, files_selection)
     files_data_usinage = get_files_data(file_manager.MILLINGDATADIRPATH, files_selection)
-    plot_files_data(files_data_vide, files_data_usinage)
     #config_data = get_files_data(file_manager.CONFIGDIRPATH, files_selection)
     config = file_manager.load_config(os.path.join(file_manager.CONFIGDIRPATH, "config.json"))
+
+
+    plot_files_data(files_data_vide, files_data_usinage)
+
+
     #   Graphique de chaque courbe : si oui : TRUE  si non : FALSE
-
-
-
-
-################################################
+    ################################################
     plot_display = True
-
+    ################################################
 
 
 
@@ -177,8 +180,8 @@ if __name__ == "__main__":
     print("")
     print("Moyenne vide")
     mean_vide = []
-    for data in files_data_vide:
-        mean_vide.append(compute_mean_value(data, plot=plot_display, verbose=True, title="Milling at - {}={}".format(parameters[ix]["mode"], parameters[ix]["val"])))
+    for ix, data in  enumerate(files_data_vide):
+        mean_vide.append(compute_mean_value(data, plot=plot_display, verbose=True, title="Empty at - {}={}".format(parameters[ix]["mode"], parameters[ix]["val"])))
 
 
 
@@ -204,9 +207,9 @@ if __name__ == "__main__":
                 courant_util.append((mean_usinage[ix] - mean_vide[ix]))
                 ec.append((60 * R * math.pow((courant_util[ix]/1000), 2))/(Vc_list[ix] * 1000 * ap * f))
 
-        derivative_and_plot(array(Vc_list), array(courant_util),'', 'Vc [m/min]', 'Courant [mA]', Titre)
+        derivative_and_plot(array(Vc_list), array(courant_util),'Courant [mA]', 'Vc [m/min]', 'Dérivée', Titre)
 
-        derivative_and_plot(array(Vc_list), array(ec),'', 'Vc [m/min]', 'énergie de coupe [J/mm^3]', Titre)
+        derivative_and_plot(array(Vc_list), array(ec),'énergie de coupe [J/mm^3]', 'Vc [m/min]', 'Dérivée', Titre)
 
     elif "FZ" in config["MODE"]:
         #   mode FZ
@@ -233,9 +236,9 @@ if __name__ == "__main__":
             courant_util.append((mean_usinage[ix] - mean_vide[ix]))
             ec.append((60 * R * math.pow((courant_util[ix] / 1000), 2)) / (Vc * 1000 * ap * f[ix]))
 
-        derivative_and_plot(array(h), array(courant_util), '', 'h [mm]', 'Courant [mA]', Titre)
+        derivative_and_plot(array(h), array(courant_util), 'Courant [mA]', 'h [mm]', 'Dérivée', Titre)
 
-        derivative_and_plot(array(h), array(ec), '', 'h [mm]', 'énergie de coupe [J/mm^3]', Titre)
+        derivative_and_plot(array(h), array(ec), 'énergie de coupe [J/mm^3]', 'h [mm]', 'Dérivée', Titre)
 
     elif "AE" in config["MODE"]:
         #   mode AE
@@ -262,9 +265,9 @@ if __name__ == "__main__":
             courant_util.append((mean_usinage[ix] - mean_vide[ix]))
             ec.append((60 * R * math.pow((courant_util[ix] / 1000), 2)) / (Vc * 1000 * ap * f[ix]))
 
-        derivative_and_plot(array(Ae_list), array(courant_util), '', 'ae [mm]', 'Courant [mA]', Titre)
+        derivative_and_plot(array(Ae_list), array(courant_util), 'Courant [mA]', 'ae [mm]', 'Dérivée', Titre)
 
-        derivative_and_plot(array(Ae_list), array(ec), '', 'ae [mm]', 'énergie de coupe [J/mm^3]', Titre)
+        derivative_and_plot(array(Ae_list), array(ec), 'énergie de coupe [J/mm^3]', 'ae [mm]', 'Dérivée', Titre)
 
 
 
