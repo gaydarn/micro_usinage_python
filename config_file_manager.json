@@ -1,7 +1,7 @@
 {
-    "MATERIAL": "INOX",
+    "MATERIAL": "Test",
     "TOOL": "1520",
     "COATING": "TRIO(PO)",
-    "MODE": "AE",
-    "COMMENT": "TEST1"
+    "MODE": "FZ",
+    "COMMENT": "TEST"
 }

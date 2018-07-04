@@ -69,7 +69,6 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     file.writelines("G01 Z20\n")
     file.writelines("L {}\n".format(path_leaf(programe_COM)))
     file.writelines("M1\n")
-    file.writelines(config["LUBRIFICATION"]+"\n")
     file.writelines("#TRAFO ON\n")
     file.writelines("L {}\n".format(path_leaf(progname_surface_milling)))
     file.writelines("G102 Z1\n")
@@ -77,7 +76,6 @@ def create_prog_main(config, progname_main, progname_surface_milling, progname_s
     file.writelines("T2 M6\n")
     file.writelines("L {}\n".format(path_leaf(programe_COM)))
     file.writelines("M1\n")
-    file.writelines(config["LUBRIFICATION"]+"\n")
     file.writelines("#TRAFO ON\n")
     file.writelines("L {}\n".format(path_leaf(progname_spirale_measurement)))
     file.writelines("M05\n")
@@ -94,7 +92,6 @@ def create_contact_outil_matière (program_COM):
     file.writelines(";Contact outil-matière\n")
     file.writelines(";**********************\n\n")
     file.writelines("M3 S60000\n")
-    file.writelines("M1\n")
     file.writelines("#TRAFO ON\n")
     file.writelines("G01 X3 Y0 F1000\n")
     file.writelines("G01 Z2.5\n")
@@ -124,6 +121,7 @@ def create_prog_surface_milling(config, parameters, filename):
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
     file.writelines("M03 S{}\n".format(config["SURFACE_N"]))
+    file.writelines(config["LUBRIFICATION"]+"\n")
     file.writelines("G0 Z10\n")
     file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
     file.writelines("G1 Z{} F1000\n".format(config["SURFACE_PROF_PASSE"]))
@@ -185,11 +183,11 @@ def create_prog_spirale_measurements(config, parameters, filename):
     write_headers(config, file, parameters, "SPIRALE DE MESURE")
     # Début du programme (statique)
     # file.writelines("T1 \n") si la machine n'a pas de changeur d'outil
-    file.writelines("T2 M6\n")
     file.writelines("G90\n")
     file.writelines("# HSC[OPMODE 2 CONTERROR 0.02]\n")
     file.writelines("# HSC ON\n")
     file.writelines("M03 S{}\n".format(n))
+    file.writelines(config["LUBRIFICATION"] + "\n")
     file.writelines("G0 Z10\n")
     file.writelines("G0 X{} Y0\n".format(config["DIAM_PIECE"] / 2 + config["DIAM_FRAISE"]))  # 1/2 largeur de fraise de marge
     file.writelines("G1 Z{} F1000\n".format(ap))
@@ -349,8 +347,8 @@ def compute_parameters_FZ(config):
         vf = math.floor(config["NB_DENTS"] * fz * n)
         dist = math.floor(vf / 60 * config["TEMPS_MESURE"])
 
-        parameters.append({     "mode": "AE",
-                                "val": ae,
+        parameters.append({     "mode": "FZ",
+                                "val": fz,
                                 "n": n,
                                 "Vf": vf,
                                 "ae": ae,
