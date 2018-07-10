@@ -10,17 +10,17 @@
     "SURPLUS_PREM_PASSE": 0.00,
     "SURFACE_LARG_PASSE": 0.05,
     "SURFACE_PROF_PASSE": -0.3,
-    "SURFACE_N" : 44321,
-    "SURFACE_VF" :8345,
+    "SURFACE_N" : 54321,
+    "SURFACE_VF" :8765,
 
     "TEMPS_MESURE": 1.5,
-    "MODE":"FZ",
-    "N" : 60000,
-    "H" : 0.02,
+    "MODE":"AE",
+    "N" : 57500,
+    "H" : 0.025,
     "AP" : -3,
     "VC" :[],
-    "FZ" :[0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.2, 0.3],
-    "AE" :[0.05],
+    "FZ" :[],
+    "AE" :[0.05, 0.1, 0.2, 0.35, 0.5],
 
     "LUBRIFICATION": "M8"
 }

@@ -10,8 +10,15 @@ import os
 from tkinter import filedialog
 
 
+# Pour enregister les plots
+# plt.savefig('Subject1Phyla.eps', format='eps', dpi=1000)
+
+
+
+
+
 colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray',
-          'tab:olive', 'tab:cyan']
+          'tab:olive', 'tab:cyan', ]
 
 
 
@@ -107,14 +114,22 @@ def compute_mean_value(file_data, plot=False, verbose=False, title="default"):
 
 
 def plot_files_data(_files_data_empty, _files_data_milling):
-    #titre = file_manager("MAINDIRNAME")
     for _ix, file in enumerate(files_data_vide):
-        plt.plot(files_data_vide[_ix]["Time"], files_data_vide[_ix]["Value"], c=colors[_ix % len(colors)])
-        plt.plot(files_data_usinage[_ix]["Time"], files_data_usinage[_ix]["Value"], c=colors[_ix % len(colors)])
+        plt.plot(files_data_vide[_ix]["Time"], files_data_vide[_ix]["Value"], label=None, c=colors[_ix % len(colors)])
+        plt.legend(loc="best")
+        plt.plot(files_data_usinage[_ix]["Time"], files_data_usinage[_ix]["Value"], label=(parameters[_ix]["mode"], parameters[_ix]["val"]), c=colors[_ix % len(colors)])
         plt.ylabel('Courant [mA]')
         plt.xlabel('Temps [ms]')
-        #mettre les légende en fonctionn du mode
-        plt.legend([_ix])
+        plt.title(os.path.basename(file_manager.MAINDIRPATH))
+    plt.show()
+
+def plot_files_data_without_derivative(_files_data_empty, _files_data_milling):
+    for _ix, file in enumerate(files_data_vide):
+        plt.plot(files_data_vide[_ix]["Time"], files_data_vide[_ix]["Value"])
+        plt.legend(loc="best")
+        plt.plot(files_data_usinage[_ix]["Time"], files_data_usinage[_ix]["Value"])
+        plt.ylabel('Courant [mA]')
+        plt.xlabel('Temps [ms]')
         plt.title(os.path.basename(file_manager.MAINDIRPATH))
     plt.show()
 
@@ -132,7 +147,7 @@ def derivative_and_plot(x, y, ylabel1, xlabel, ylabel2, Title="default"):
     ax2.plot(x, dy,'k--', label='Dérivée', c=colors[1])
     ax2.scatter(x, dy, c=colors[1])
     ax2.set_ylabel(ylabel2)
-    #fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.title(Title)
     ax1.legend(bbox_to_anchor=(1.01, -0.05), loc=3, ncol=2, mode="expand", borderaxespad=0)
     ax2.legend(bbox_to_anchor=(1.01, -0.10), loc=3, ncol=2, mode="expand", borderaxespad=0)
@@ -148,27 +163,27 @@ if __name__ == "__main__":
     files_selection = []
     files_data_vide = get_files_data(file_manager.EMPTYDATADIRPATH, files_selection)
     files_data_usinage = get_files_data(file_manager.MILLINGDATADIRPATH, files_selection)
-    #config_data = get_files_data(file_manager.CONFIGDIRPATH, files_selection)
     config = file_manager.load_config(os.path.join(file_manager.CONFIGDIRPATH, "config.json"))
 
 
+
+    #TODO load parameters
+    parameters = main_micro_usinage.compute_parameters(config)
+
+    # plot pour comparaison des plusireur points de mesurre, pas utile pour les analyse
+    #plot_files_data_without_derivative(files_data_vide, files_data_usinage)
+
+
+    #graphique de les tous les courant
     plot_files_data(files_data_vide, files_data_usinage)
+
 
 
     #   Graphique de chaque courbe : si oui : TRUE  si non : FALSE
     ################################################
-    plot_display = True
+    plot_display = False
     ################################################
 
-
-
-
-
-    # chargement du fichier de configuation du programme
-    #config = file_manager.load_config('config.json')
-    #     main_micro_usinage = file_manager.load_config('main_micro_usinage.py')
-    #TODO load parameters
-    parameters = main_micro_usinage.compute_parameters(config)
 
 
     print("")
@@ -182,8 +197,6 @@ if __name__ == "__main__":
     mean_vide = []
     for ix, data in  enumerate(files_data_vide):
         mean_vide.append(compute_mean_value(data, plot=plot_display, verbose=True, title="Empty at - {}={}".format(parameters[ix]["mode"], parameters[ix]["val"])))
-
-
 
 
     if "VC" in config["MODE"]:
