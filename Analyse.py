@@ -116,13 +116,14 @@ def compute_mean_value(file_data, plot=False, verbose=False, title="default"):
 def plot_files_data(_files_data_empty, _files_data_milling):
     legends = []
     for _ix, file in enumerate(files_data_vide):
-        plt.plot(files_data_vide[_ix]["Time"], files_data_vide[_ix]["Value"], c=colors[_ix % len(colors)])
         plt.plot(files_data_usinage[_ix]["Time"], files_data_usinage[_ix]["Value"], c=colors[_ix % len(colors)])
         legends.append("{}={}".format(parameters[_ix]["mode"], parameters[_ix]["val"]))
         plt.ylabel('Courant [mA]')
         plt.xlabel('Temps [ms]')
         plt.title(os.path.basename(file_manager.MAINDIRPATH))
-    plt.legend(legends, loc='upper right')
+    plt.legend(legends, loc='best')
+    for _ix, file in enumerate(files_data_vide):
+        plt.plot(files_data_vide[_ix]["Time"], files_data_vide[_ix]["Value"], c=colors[_ix % len(colors)])
     plt.show()
 
 def plot_files_data_without_derivative(_files_data_empty, _files_data_milling):

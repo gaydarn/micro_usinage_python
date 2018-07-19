@@ -58,7 +58,7 @@ def get_folder_structure():
     global MAINDIRPATH, DATADIRPATH, PRGDIRPATH, CONFIGDIRPATH, EMPTYDATADIRPATH, MILLINGDATADIRPATH
 
     root = tkinter.Tk()
-    MAINDIRPATH = filedialog.askdirectory(parent=root, initialdir=r"C:\Users\thibaut.nicoulin\Desktop\test",
+    MAINDIRPATH = filedialog.askdirectory(parent=root, initialdir=r"C:\Users\thibaut.nicoulin\Desktop\Rech. param",
                                        title='Please select the measurement directory')
     # TODO: Why not quit tkinter?
     root.quit()
