@@ -121,9 +121,10 @@ def plot_files_data(_files_data_empty, _files_data_milling):
         plt.ylabel('Courant [mA]')
         plt.xlabel('Temps [ms]')
         plt.title(os.path.basename(file_manager.MAINDIRPATH))
-    plt.legend(legends, loc='best')
+    plt.legend(legends, bbox_to_anchor=(1.01, -0.05), loc=3, ncol=1, mode="expand", borderaxespad=0)
     for _ix, file in enumerate(files_data_vide):
         plt.plot(files_data_vide[_ix]["Time"], files_data_vide[_ix]["Value"], c=colors[_ix % len(colors)])
+    #plt.savefig('Courant.png', format='png', figsize=(10, 100), dpi=50)
     plt.show()
 
 def plot_files_data_without_derivative(_files_data_empty, _files_data_milling):
@@ -137,13 +138,13 @@ def plot_files_data_without_derivative(_files_data_empty, _files_data_milling):
     plt.show()
 
 
-def derivative_and_plot(x, y, ylabel1, xlabel, ylabel2, Title="default"):
+def derivative_and_plot(x, y, ylabel1, xlabel, ylabel2, Title="default", Name='default'):
     dy = np.zeros(y.shape, np.float)
     dy[0: -1] = (np.diff(y) / np.diff(x))
     dy[-1] = (y[-1] - y[-2]) / (x[-1] - x[-2])
 
-    fig, ax1 = plt.subplots()
-    ax1.plot(x, y, '-', label='Courant util', c=colors[0])
+    fig, ax1 = plt.subplots(dpi=80)
+    ax1.plot(x, y, '-', label='Courant utile', c=colors[0])
     ax1.set_ylabel(ylabel1)
     ax1.set_xlabel(xlabel)
     ax2 = ax1.twinx()
@@ -154,7 +155,10 @@ def derivative_and_plot(x, y, ylabel1, xlabel, ylabel2, Title="default"):
     plt.title(Title)
     ax1.legend(bbox_to_anchor=(1.01, -0.05), loc=3, ncol=2, mode="expand", borderaxespad=0)
     ax2.legend(bbox_to_anchor=(1.01, -0.10), loc=3, ncol=2, mode="expand", borderaxespad=0)
+    #fig.set_size_inches(19.2, 10.8)
+    #plt.savefig(Name)
     plt.show()
+
 
     # Chargement du fichier de configuration
     config = file_manager.load_config('config.json')
@@ -223,9 +227,9 @@ if __name__ == "__main__":
                 courant_util.append((mean_usinage[ix] - mean_vide[ix]))
                 ec.append((60 * R * math.pow((courant_util[ix]/1000), 2))/(Vc_list[ix] * 1000 * ap * f))
 
-        derivative_and_plot(array(Vc_list), array(courant_util),'Courant [mA]', 'Vc [m/min]', 'Dérivée', Titre)
+        derivative_and_plot(array(Vc_list), array(courant_util),'Courant [mA]', 'Vc [m/min]', 'Dérivée', Titre, 'Courant utile.png')
 
-        derivative_and_plot(array(Vc_list), array(ec),'énergie de coupe [J/mm^3]', 'Vc [m/min]', 'Dérivée', Titre)
+        derivative_and_plot(array(Vc_list), array(ec),'énergie de coupe [J/mm^3]', 'Vc [m/min]', 'Dérivée', Titre, 'Energie.png')
 
     elif "FZ" in config["MODE"]:
         #   mode FZ
@@ -252,9 +256,13 @@ if __name__ == "__main__":
             courant_util.append((mean_usinage[ix] - mean_vide[ix]))
             ec.append((60 * R * math.pow((courant_util[ix] / 1000), 2)) / (Vc * 1000 * ap * f[ix]))
 
-        derivative_and_plot(array(h), array(courant_util), 'Courant [mA]', 'h [mm]', 'Dérivée', Titre)
+        derivative_and_plot(array(h), array(courant_util), 'Courant [mA]', 'h [mm]', 'Dérivée', Titre, 'Courant1.png')
 
-        derivative_and_plot(array(h), array(ec), 'énergie de coupe [J/mm^3]', 'h [mm]', 'Dérivée', Titre)
+        derivative_and_plot(array(h), array(ec), 'énergie de coupe [J/mm^3]', 'h [mm]', 'Dérivée', Titre, 'Energie1.png')
+
+        derivative_and_plot(array(Fz_list), array(courant_util), 'Courant [mA]', 'Fz [mm/dent]', 'Dérivée', Titre, 'Courant2.png')
+
+        derivative_and_plot(array(Fz_list), array(ec), 'énergie de coupe [J/mm^3]', 'Fz [mm/dent]', 'Dérivée', Titre, 'Energie2.png')
 
     elif "AE" in config["MODE"]:
         #   mode AE
@@ -281,9 +289,10 @@ if __name__ == "__main__":
             courant_util.append((mean_usinage[ix] - mean_vide[ix]))
             ec.append((60 * R * math.pow((courant_util[ix] / 1000), 2)) / (Vc * 1000 * ap * f[ix]))
 
-        derivative_and_plot(array(Ae_list), array(courant_util), 'Courant [mA]', 'ae [mm]', 'Dérivée', Titre)
+        derivative_and_plot(array(Ae_list), array(courant_util), 'Courant [mA]', 'ae [mm]', 'Dérivée', Titre, 'Courant utile.png')
 
-        derivative_and_plot(array(Ae_list), array(ec), 'énergie de coupe [J/mm^3]', 'ae [mm]', 'Dérivée', Titre)
+
+        derivative_and_plot(array(Ae_list), array(ec), 'énergie de coupe [J/mm^3]', 'ae [mm]', 'Dérivée', Titre, 'Energie.png')
 
 
 

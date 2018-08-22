@@ -1,7 +1,7 @@
 {
-    "MATERIAL": "PHYNOX",
+    "MATERIAL": "INOX",
     "TOOL": "1520",
-    "COATING": "TRIO",
+    "COATING": "TRIO(PO)",
     "MODE": "VC",
-    "COMMENT": "Présentation"
+    "COMMENT": "TEST_LB_1"
 }

@@ -7,20 +7,20 @@
     "NB_TOURS_RESERVE": 12,
     "R_MIN": 0.1,
 
-    "SURPLUS_PREM_PASSE": 0.00,
-    "SURFACE_LARG_PASSE": 0.05,
+    "SURPLUS_PREM_PASSE": 1.5,
+    "SURFACE_LARG_PASSE": 0.1,
     "SURFACE_PROF_PASSE": -0.3,
     "SURFACE_N" : 54321,
     "SURFACE_VF" :8765,
 
     "TEMPS_MESURE": 1.5,
     "MODE":"VC",
-    "N" : 0,
-    "H" : 0,
+    "N" : 60000,
+    "H" : 0.02,
     "AP" : -3,
-    "VC" :[565, 550, 525, 500, 475, 450, 425, 400, 375, 350, 325, 300, 275, 250, 225, 200, 175, 150, 125, 100, 75, 50],
-    "FZ" :[0.07],
-    "AE" :[0.06],
+    "VC" :[565, 550, 525, 500, 475, 450, 425, 400, 375, 350, 300, 250, 200, 150, 100, 50],
+    "FZ" :[0.08],
+    "AE" :[0.08],
 
     "LUBRIFICATION": "M8"
 }
